@@ -1,0 +1,984 @@
+---
+title: "Explanatory Data Analysis With R"
+author: "Toukiroj Jaman"
+date: "2025-01-29"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Question-1
+```{r}
+#setwd("E:\\study\\3_2\\Computign_2\\Assigenment")
+
+data <- read.csv("E:\\study\\3_2\\Computign_2\\Assigenment\\ObesityData.csv", header = T, as.is = F)
+
+#Converting var to factors that are stored as numeric data
+#Rounding to remove numbers after decimal places and adding labels according to the paper from the classroom
+#Vegetables
+data$FCVC <- round(data$FCVC)
+comment(data$FCVC) <- c("Frequency of consumption of vegetables")
+cumsum(table(data$FCVC))
+
+#data$FCVC <-factor(data$FCVC, levels = c("1","2","3"), labels = c("Never","Sometimes","Always"))
+#print("Frequency of consumption of vegetables")
+#table(data$FCVC)
+
+#Meals
+data$NCP <- round(data$NCP)
+comment(data$NCP) <- c("Number of meals in a day")
+cumsum(table(data$NCP))
+
+data$NCP <-factor(data$NCP, levels = c("1","2","3","4"), labels = c("One","Two","Three","Four"))
+print("Number of meals in a day")
+table(data$NCP)
+
+#Water
+#data$CH2O <- round(data$CH2O)
+#comment(data$CH2O) <- c("Consumption of water daily")
+#cumsum(table(data$CH2O))
+
+#data$CH2O <-factor(data$CH2O, levels = c("1","2","3"), labels = c("Less than a liter","Between 1 and 2 L","More than 2 L"))
+#print("Consumption of water daily")
+#table(data$CH2O)
+
+#EXcersise
+data$FAF <- round(data$FAF)
+comment(data$FAF) <- c("How often do you have Physical Excersise")
+cumsum(table(data$FAF))
+
+data$FAF <-factor(data$FAF, levels = c("0","1","2","3"), labels = c("I do not have","1 or 2days","2 or 4days","4 or 5days"))
+print("How often do you have Physical Excersise")
+table(data$FAF)
+
+#Devices
+data$TUE <- round(data$TUE)
+comment(data$TUE) <- c("Time Using Technology Devices")
+cumsum(table(data$TUE))
+
+data$TUE <-factor(data$TUE, levels = c("0","1","2"), labels = c("0 to 2hours","3 to 5hours","More than 5hours"))
+print("Time Using Technology Devices")
+table(data$TUE)
+
+
+str(data)
+```
+
+#Question-2
+```{r}
+#Gender
+tab_gender <- table(data$Gender)
+tab_gender
+
+class(data$Gender)
+
+per_gender <- prop.table(tab_gender) * 100
+per_gender
+
+cum_gender <- cumsum(tab_gender)
+cum_gender
+
+result1 <- data.frame(
+  Category = names(tab_gender),
+  Frequency = as.vector(tab_gender),
+  Percentage = round(as.vector(per_gender), 2),
+  Cumulative_Frequency = as.vector(cum_gender))
+result1
+
+
+cat_vars <- names(data)[sapply(data, is.factor) | sapply(data, is.character)] #identifys catagorical var in a data frame
+
+cat_vars
+#Due to tedious and repeation of same work i create a function to do all the work at once----
+
+  analyze_categorical <- function(data) {
+    results <- data.frame(Variables = character(),Catagory = character(), Frequency = integer(), Percentage = numeric(), Cumulative_freq = integer())
+    
+    for (var in cat_vars) {
+      freq <- table(data[[var]])
+      perc <- prop.table(freq) * 100
+      cum_freq <- cumsum(freq)
+      
+      result <- data.frame(
+        Variables = c(var,rep("-",length(freq)-1)),
+        Category = names(freq),
+        Frequency = as.vector(freq),
+        Percentage = round(as.vector(perc), 2),
+        Cumulative_Frequency = as.vector(cum_freq)
+      )
+      results <- rbind(results, result)
+    }
+    results
+  }
+
+analyze_categorical(data)
+  
+
+```
+
+#Question-3 Pending
+```{r}
+library(ggplot2)
+#Gender
+gender_pie <- ggplot(data, aes(x = "", fill = Gender)) +
+  geom_bar(width = 1, stat = "count", color = "black") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  ggtitle("Gender Distribution") +
+  theme(plot.title = element_text(hjust = 0.5),
+  legend.position = c(0, 0.8)) +
+  scale_fill_manual(values = c("Male" = "skyblue", "Female" =
+  "pink"))
+gender_pie
+#family_history_with_overweight
+family_pie <- ggplot(data, aes(x = "", fill =
+  family_history_with_overweight)) +
+  geom_bar(width = 1, stat = "count", color = "black") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  ggtitle("Family History with Overweight") +
+  theme(plot.title = element_text(hjust = 0.5),
+  legend.position = "bottom",
+  legend.justification = "right") +
+  scale_fill_manual(values = c("yes" = "steelblue", "no" =
+  "salmon"))
+family_pie
+
+#SCC
+scc_pie <- ggplot(data, aes(x = "", fill = SCC)) +
+  geom_bar(width = 1, stat = "count", color = "black") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  ggtitle("Calories Consumption Monitoring") +
+  theme(plot.title = element_text(hjust = 0.5),
+  legend.position = c(0, 0.8)) +
+  scale_fill_manual(values = c("yes" = "gold", "no" =
+  "lightcoral"))
+scc_pie
+#SMOKE
+smoke_bar <- ggplot(data, aes(x = SMOKE)) + geom_bar(fill ="steelblue") +
+  theme_minimal() + ggtitle("Smoking Status") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("Smoke") +
+  ylab("Count")
+smoke_bar
+#FAVC
+favc_bar <- ggplot(data, aes(x = FAVC)) +
+  geom_bar(fill = "orange") + coord_flip() + theme_minimal() +
+  ggtitle("Frequency of Consumption of High Caloric Food") +
+  theme(plot.title = element_text(hjust = 0.5)) + # Center the title
+  xlab("FAVC") +
+  ylab("Count")
+favc_bar
+#CALC
+calc_bar <- ggplot(data, aes(x = CALC)) +
+  geom_bar(fill = "purple") + coord_flip() +
+  theme_minimal() +
+  ggtitle("Consumption of Alcohol") +
+  theme(plot.title = element_text(hjust = 0.5)) + # Center the title
+  xlab("CALC") +
+  ylab("Count")
+calc_bar
+
+```
+
+#Question-4
+```{r}
+#Analyzing Numerical variables summary statistics using a library
+#install.packages("psych")
+library(psych)
+
+#storing the statistics in a dataframe for better view
+
+
+num_analysis <- data.frame(describe(data[sapply(data, is.numeric)]))
+
+num_analysis
+
+```
+
+#Question-5
+```{r}
+library(ggplot2)
+
+# Histogram with Normal Curve
+ggplot(data, aes(x = Age)) +
+  geom_histogram(aes(y = after_stat(count)), bins = 10, fill = "lightblue", color = "black") +
+  ggtitle("Histogram") +
+  xlab("Age") +
+  ylab("Count")
+
+#Density PLot of Age
+ggplot(data, aes(x = Age)) +
+  geom_density(fill = "lightblue", alpha = 0.5) +
+  ggtitle("Density Plot of Age") +
+  xlab("Age") +
+  ylab("Density")
+
+#comment : The Age data doesn't follow normal distribution and is right skewed
+
+
+
+```
+
+#Question-6
+```{r informal test of normality}
+#Collecting numerical variables in a dataframe
+num_vars <- names(data)[sapply(data, is.numeric)]
+num_vars
+#function to generate Q-Q plot for all the numerical variables
+qq_plot <- function(data){
+  
+  for (var in num_vars) {
+    a<-ggplot(data, aes(sample = .data[[var]])) + 
+        stat_qq(color = "blue", size = 0.9) +
+        stat_qq_line(color = "cyan") +
+        ggtitle(paste("Q-Q Plot of variable :",var)) +
+        xlab("Theoratical Quantiles") +
+        ylab("Sample Quantiles")+
+        theme_light()
+    print(a)      
+  }
+  
+}
+
+qq_plot(data)
+
+
+
+print("Comment : From the q-q plot its quiet evident that the numerical variables Age, Height, Weight, CH2o doesn't follow normal distribution as the quantile values doesn't lie on the 45deg line.")
+```
+
+```{r formal test of normality}
+#testing normality of numerical variable variables using shapiro wilk normality test
+check_normality <- function(data){
+  q6_result <- data.frame(Variables = character(0),Statistics = numeric(0),P_value = numeric(0))
+  
+  for (var in num_vars) {
+    p <- shapiro.test(data[[var]])
+    
+    q6_result <- rbind(q6_result, data.frame(Variable = var, Statistic = p$statistic, P_Value = p$p.value))
+  }
+  print(q6_result)
+}
+check_normality(data)
+
+
+print("As the P_Value of Shapiro-wilk normality test for the numerical variables Age, Height, Weight, ch2o less than 0.05. We may reject null hypothesis for 5% level of significance and conclude that the variables(Age, Height, Weight,ch2o) doesn't follow normal distribution")
+```
+
+```{r Approprieat summary Measure for non-normal data}
+#function to calclate summary measures
+
+sum_measure <- function(data) {
+  stat <- data.frame(Variables = character(),Median = numeric(),First_Quartile = numeric(), Third_Quartile=numeric(), IQR = numeric(), CQD = numeric())
+  
+  for (var in num_vars) {
+    med <- round(median(data[[var]], na.rm = T),2)
+    q1  <- round(quantile(data[[var]], 0.25, na.rm = T),2)
+    q3  <- round(quantile(data[[var]], 0.75, na.rm = T),2)
+    iqr <- round(IQR(data[[var]], na.rm = T),2)
+    cqd <- round((q3-q1/q3+q1),2)
+    
+    r <- data.frame(
+      Variables = var,
+      Median = as.vector(med),
+      First_Quartile = as.vector(q1),
+      Third_Quartile = as.vector(q3),
+      IQR = as.vector(iqr),
+      CQD = as.vector(cqd)
+    )
+    
+    stat <- rbind(stat,r)
+  }
+  stat
+}
+
+sum_measure(data)
+
+```
+
+```{r Graphs for non-normal data}
+box_plot <- function(data) {
+  graphs <- list()
+  
+  for (var in num_vars) {
+    p <- ggplot(data, aes(.data[[var]]))+
+    geom_boxplot(fill = "lightblue" , color = "black", varwidth = T)+
+    ggtitle(paste("Box plot of :",var))
+    
+    graphs[[var]] <- p
+  }
+  graphs
+}
+
+box_plot(data)
+
+
+
+```
+
+#Question-7 Pending
+```{r}
+# Libraries
+library(ggplot2)
+library(dplyr)
+# Numerical and Categorical variables
+numerical_variables <- c("Age", "Height", "Weight", "FCVC","CH2O")
+categorical_variables <- c("Gender", "SMOKE","family_history_with_overweight", "FAVC", "SCC", "CALC")
+# Convert categorical variables to factors
+Obs <- data %>% mutate(across(all_of(categorical_variables),as.factor))
+# Summary statistics
+calculate_summary <- function(data, num_var, cat_var) {data %>% group_by(.data[[cat_var]]) %>%
+summarise(
+Min = min(.data[[num_var]], na.rm = TRUE),
+Max = max(.data[[num_var]], na.rm = TRUE),
+Mean = mean(.data[[num_var]], na.rm = TRUE),
+Median = median(.data[[num_var]], na.rm = TRUE),
+Mode = as.numeric(names(sort(table(.data[[num_var]]),
+decreasing = TRUE)[1])),
+Q1 = quantile(.data[[num_var]], 0.25, na.rm = TRUE),
+Q3 = quantile(.data[[num_var]], 0.75, na.rm = TRUE),
+SD = sd(.data[[num_var]], na.rm = TRUE),
+Variance = var(.data[[num_var]], na.rm = TRUE),
+Coef_Variation = SD / Mean,
+IQR = Q3 - Q1,
+Coef_Quartile_Deviation = IQR / (Q3 + Q1)
+)}
+# Graphs
+plot_graphs <- function(data, num_var, cat_var) {
+ggplot(data, aes_string(x = cat_var, y = num_var)) +
+geom_boxplot(fill = "red", alpha = 0.7) +
+ggtitle(paste("Boxplot of", num_var, "by", cat_var)) +
+theme_minimal()}
+# Subgroup analysis
+for (cat_var in categorical_variables) {
+  for (num_var in numerical_variables) {
+    cat("\nSummary statistics for", num_var, "by", cat_var,"\n")
+    print(calculate_summary(Obs, num_var, cat_var))
+    print(plot_graphs(Obs, num_var, cat_var))
+  }
+}
+
+
+```
+#Question-8
+```{r}
+
+library(ggplot2)
+#Scatter plot of age and weight
+ggplot(data, aes(x = Age, y = Weight)) +
+  geom_point(color = "black",fill = "red", shape = 23) + 
+  geom_smooth(method = "lm",formula = y ~ x, color = "royalblue", se = F) +
+  ggtitle("Scatter Plot of Age vs. Weight") +
+  xlab("Age") +
+  ylab("Weight")+
+  theme_light()
+
+#Scatter plot of age and height
+ggplot(data, aes(x = Age, y = Height)) +
+  geom_point(color = "black",fill = "red", shape = 23) + 
+  geom_smooth(method = "lm",formula = y ~ x, color = "royalblue", se = F) +
+  ggtitle("Scatter Plot of Age vs. Height") +
+  xlab("Age") +
+  ylab("Height")+
+  theme_light()
+
+#Scatter plot of height and weight
+ggplot(data, aes(x = Height, y = Weight)) +
+  geom_point(color = "black",fill = "red", shape = 23) + 
+  geom_smooth(method = "lm",formula = y ~ x, color = "royalblue", se = F) +
+  ggtitle("Scatter Plot of Height vs. Weight") +
+  xlab("Height") +
+  ylab("Weight")+
+  theme_light()
+
+#Scat
+pairs(data[, c("Age", "Height", "Weight")], 
+             col = c("red","blue"))
+
+```
+#Question-9
+```{r}
+#Using ifelse() function to recode MTRANS
+
+data$MTRANS_RC <- ifelse(data$MTRANS %in% c("Walking","Bike"), "Ownself","Car")
+
+table(data$MTRANS_RC)
+
+
+#converting FCVC as factor
+data$FCVC_factor <- factor(data$FCVC, levels = c("1","2","3"), labels = c("Never", "Sometimes", "Always"))
+
+table(data$FCVC_factor)
+
+
+```
+
+#Question-10
+```{r}
+#calculating BMI
+data$BMI <- round(data$Weight / (data$Height)^2,1)
+
+# Categorize BMI
+data$BMI_cat <- cut(data$BMI, 
+                     breaks = c(-Inf, 18.5, 24.9, 29.9, Inf), 
+                     labels = c("Underweight", "Normal", "Overweight", "Obesity"))
+
+table(data$BMI_cat)
+
+data$BMI_cat[data$BMI < 18.5] <- "Underweight"
+data$BMI_cat[18.5 <= data$BMI & data$BMI <= 24.9] <- "Normal"
+data$BMI_cat[25 <= data$BMI & data$BMI <= 29.9] <- "Overweight"
+data$BMI_cat[data$BMI >= 30] <- "Obesity"
+
+
+```
+
+#Question-11
+```{r}
+#data accroding to the question
+filtered_data <- subset(data, Age > 30 & SMOKE == "no" & FAF == "2 or 4days" & CH2O > 1, select = c(Age,Height, Weight,SMOKE, FAF, CH2O))
+
+
+
+#BMI calculation
+
+filtered_data$BMI <- round(filtered_data$Weight/filtered_data$Height^2,1)
+
+tail(filtered_data, 10)
+```
+#Question-12
+```{r}
+#Subsettign data according to the comndition in the question
+obesity_sub <- subset(data, Height > 1.8 & FAVC == "yes", select = c(Age,Height, Weight, FAVC,BMI))
+
+#average BMI
+mean <- round(mean(obesity_sub$BMI, na.rm = T),3)
+
+
+#Standard deviation of BMI
+sd <- round(sd(obesity_sub$BMI),3)
+
+#Comment
+sprintf("The Average BMI for people with height more than 1.8 and with High caloric food consumption is %.2f with a standard deviation of %.2f",mean,sd)
+
+
+```
+
+
+
+#Question-13
+```{r}
+#Correlation between age,height,weight
+a <- round(cor(data$Age,data$Weight),3)
+b <- round(cor(data$Age,data$Height),3)
+c <- round(cor(data$Weight,data$Height),3)
+
+paste(a,b,c)
+
+sprintf("Comparing to question 8 scatter plot it is seen that Age and Weight has slightly upward trend and the pearson corr coeff is = %.3f and Age and Weight has slightly downward trend with pearson corr coeff = %.3f which is close to zero and lastly Weight and Height has quite strong upward trend with corr coeff = %.3f which indicates moderate correlation", a,b,c)
+
+```
+
+#Question-14
+```{r}
+#Corr between age and bmi
+
+r <- round(cor(data$Age,data$BMI),3)
+
+sprintf("This shows that Age and BMI has weak posetive correlaion with pearson coefficient of correlation : %.3f",r)
+
+#correlation test of Age and BMI
+#Null H0 : Roh(Age,BMI) = 0
+#Alternative Ha : Roh(Age,BMI) != 0
+
+corr.test(data$Age,data$BMI, method = "spearman")
+
+#print(corr.test(data$Age,data$BMI),short = F)
+
+
+print("Null H0 : Roh(Age,BMI) = 0")
+print("Alternative Ha : Roh(Age,BMI) != 0")
+
+print('As the p value < 0.05 we may reject null hypothesis at 5% level of significance and conclude that the correlation between Age and BMI significantly differ from Zero at 5% level of significance.')
+
+
+cor(data[sapply(data, is.numeric)], use = "complete.obs")
+```
+#Question-15
+```{r}
+require(BSDA)
+
+
+print("For variables age, height, BMI, and ch2o we will use parametric test as the sample size is large (n=2111) according to centeral limit theorem data follows normal distribution and can be used z-test. And the standard deviation is estimated from given sample")
+#test age
+print("Null Ho : Mu(age) = 30")
+print("Alternative Ha : Mu(Age) != 30")
+
+z.test(data$Age, mu = 30,sigma.x = sd(data$Age), alternative = "two.sided")
+
+print('As the p value < 0.05 we may reject null hypothesis at 5% level of significance and conclude that the average age of the respondents is not 30 years.')
+
+#test Height
+print("Null Ho : Mu(Height) = 1.7")
+print("Alternative Ha : Mu(Height) > 1.7")
+
+z.test(data$Height, mu = 1.7, sigma.x = sd(data$Height), alternative = "greater")
+
+print('As the p value > 0.05 we may accept null hypothesis at 5% level of significance and conclude that the average height of the respondents is 1.7 meters.')
+
+#test CH2o
+print("Null Ho : Mu(CH2o) = 2")
+print("Alternative Ha : Mu(CH2o) != 2")
+
+z.test(data$CH2O, mu = 2, sigma.x = sd(data$CH2O), alternative = "two.sided")
+
+print('As the p value > 0.05 we may accept null hypothesis at 5% level of significance and conclude that the average water consumptation of the respondents is 2 liters.')
+
+#normality test of bmi
+shapiro.test(data$BMI)
+
+print("As the p value < 0.05 we may reject null hypothesis at 5% level of significance and conclude that the BMI Varoiable doesn't follows normal distribution")
+
+# test bmi < 30
+z.test(data$BMI, mu = 30,sigma.x = sd(data$BMI), alternative = "less")
+
+print("As the p value < 0.05 we may reject null hypothesis at 5% level of significance and conclude that the BMI for respondents is less then 30.")
+```
+
+
+#Question-16
+```{r}
+require(BSDA)
+
+print("as for large sample size (n=2111) according to centeral limit theorem data follows normal distribution. But in this case population variance unknown thats why we are using t test to approximate z test for large number of sample. ")
+
+var.test(Age~Gender,data)
+t.test(Age ~ Gender, data , var.equal = TRUE)
+
+var.test(Height~Gender,data)
+t.test(Height ~ Gender, data , var.equal = TRUE)
+
+var.test(BMI~Gender,data)
+t.test(BMI ~ Gender, data , var.equal = F)
+
+var.test(Age~SMOKE,data)
+t.test(Age ~ SMOKE, data , var.equal = F)
+
+var.test(Height~SMOKE,data)
+t.test(Height ~ SMOKE, data , var.equal = F)
+
+var.test(BMI~SMOKE,data)
+t.test(BMI ~ SMOKE, data , var.equal = TRUE)
+
+var.test(BMI ~ family_history_with_overweight,data)
+t.test(BMI ~ family_history_with_overweight, data , var.equal = F, alternative = "less")
+
+```
+
+#Question-17
+```{r}
+#Anova and multiple comparison of Age
+summary(aov(Age ~ CAEC, data))
+TukeyHSD(aov(Age ~ CAEC, data))
+
+
+summary(aov(Age ~ CALC, data))
+TukeyHSD(aov(Age ~ CALC, data))
+
+summary(aov(Age ~ MTRANS, data))
+TukeyHSD(aov(Age ~ MTRANS, data))
+
+#Anova and multiple comparison of Height
+summary(aov(Height ~ CAEC, data))
+TukeyHSD(aov(Height ~ CAEC, data))
+
+summary(aov(Height ~ CALC, data))
+TukeyHSD(aov(Height ~ CALC, data))
+
+summary(aov(Height ~ MTRANS, data))
+TukeyHSD(aov(Height ~ MTRANS, data))
+
+#Anova and multiple comparison of Weight
+summary(aov(Weight ~ CAEC, data))
+TukeyHSD(aov(Weight ~ CAEC, data))
+
+summary(aov(Weight ~ CALC, data))
+TukeyHSD(aov(Weight ~ CALC, data))
+
+summary(aov(Weight ~ MTRANS, data))
+TukeyHSD(aov(Weight ~ MTRANS, data))
+
+
+
+```
+#Question-18
+```{r}
+#Contengency table
+bmi_gender_tab <- table(data$Gender, data$BMI_cat)
+bmi_gender_tab
+
+#row percentage
+prop.table(bmi_gender_tab,1)*100
+
+#column percentage
+prop.table(bmi_gender_tab,2)*100
+
+#total percentage
+prop.table(bmi_gender_tab)*100
+
+#chisquare test
+chisq.test(bmi_gender_tab)
+
+#expected cell count
+chisq.test(bmi_gender_tab)$expected
+
+```
+```{r}
+bmi_analysis <- function(data, x, y) {
+  
+  table1 <- table(data[[x]], data[[y]])
+  
+  #row percentage
+  row_percent <- prop.table(table1,1)*100
+  
+  #column percentage
+  col_percent <- prop.table(table1,2)*100
+  
+  #total percentage
+  total_percent <- prop.table(table1)*100
+  
+  #Chi-square test
+  chisq_test <- chisq.test(table1)
+  expected_counts <- chisq_test$expected
+  
+  
+  return(list(
+  "Contingency Table" = table1,
+  "Row Percentages" = row_percent,
+  "Column Percentages" = col_percent,
+  "Total Percentages" = total_percent,
+  "Expected Counts" = expected_counts,
+  "Chi-Square Test" = chisq_test
+))
+  
+}
+
+#BMI with gender
+bmi_analysis(data, "Gender", "BMI_cat")
+
+#Bmi with family_history_with_overweight
+bmi_analysis(data, "family_history_with_overweight", "BMI_cat")
+
+#Bmi with smoking
+bmi_analysis(data, "SMOKE", "BMI_cat")
+
+#Bmi with FAVC
+bmi_analysis(data, "FAVC", "BMI_cat")
+
+#Bmi wiht CAEC
+bmi_analysis(data, "CAEC", "BMI_cat")
+
+#BMI with scc
+bmi_analysis(data, "SCC", "BMI_cat")
+
+#BMI with calc
+bmi_analysis(data, "CALC", "BMI_cat")
+
+#BMI wiht MTRANS
+bmi_analysis(data, "MTRANS", "BMI_cat")
+
+```
+
+#Question-19
+```{r}
+require(dplyr)
+
+obesity_small <- data %>% 
+  select(Gender, Age, Height, Weight, family_history_with_overweight, FAVC, CH2O, SCC, FAF, TUE,CALC)
+
+obesity_new <- obesity_small %>% 
+  select(-FAF, -TUE, -CALC)
+
+#regression model with obesity_new
+
+model <- lm(Weight ~ Gender+Age+Height+family_history_with_overweight+FAVC+CH2O+SCC, obesity_new)
+
+summary(model)
+
+# Create new data for prediction
+new_data <- data.frame(
+  Gender = "Male",
+  Age = 23,
+  Height = 1.77,
+  family_history_with_overweight = "yes",
+  FAVC = "yes",
+  CH2O = 1,
+  SCC = "no"
+)
+
+View(new_data)
+# Predict Weight
+predicted_weight <- predict(model, new_data)
+
+predicted_weight
+sprintf("The predicted average weight for given data in question is %f KG",predicted_weight)
+
+```
+#Question-20
+```{r}
+#install.packages("MASS")
+require(MASS)
+#install.packages("car")
+require(car)
+#install.packages("lmtest")
+require(lmtest)
+
+??MASS
+
+#Model building procedure----
+
+
+# Full model with all predictors
+full_model <- lm(BMI ~ ., data)
+
+# Start with an empty model
+empty_model <- lm(BMI ~ 1, data)
+
+#forward selection----
+forward_model <- step(empty_model, 
+                      scope = list(lower = empty_model, upper = full_model), 
+                      direction = "forward")
+
+# Summary of the final selected model
+summary(forward_model)
+
+#backward selection----
+backward_model <- step(full_model,
+                      direction = "backward")
+
+# Summary of the final selected model
+summary(backward_model)
+
+#stepwise selection----
+stepwise_model <- step(empty_model, 
+                      scope = list(lower = empty_model, upper = full_model), 
+                      direction = "both")
+
+# Summary of the final selected model
+summary(stepwise_model)
+
+AIC(full_model)
+AIC(forward_model)
+AIC(backward_model)
+AIC(stepwise_model)
+
+confint(stepwise_model)
+
+#variance in flation factor from car package
+vif(stepwise_model)
+
+```
+
+
+```{r}
+
+predicted <- predict(stepwise_model)
+
+
+
+data$predicted_value <- predicted
+data$residuals1 <- residuals(stepwise_model)
+
+```
+
+
+```{r}
+require(lmtest)
+require(car)
+
+
+vif(stepwise_model)
+
+#auto correlation test
+dwtest(stepwise_model)
+
+
+#heteroscadestiy test
+bptest(stepwise_model)
+
+
+
+
+
+
+#normality check
+ggplot(data, aes(sample =  residuals1)) + 
+        stat_qq(color = "blue", size = 0.9) +
+        stat_qq_line(color = "cyan") +
+        ggtitle(paste("Q-Q Plot of residual")) +
+        xlab("Theoratical Quantiles") +
+        ylab("Sample Quantiles")+
+        theme_light()
+
+
+#linearity Check
+ggplot(stepwise_model, aes(x=stepwise_model$fitted.values, y=stepwise_model$residuals))+
+  geom_point(colour = "red", fill = "black", shape = 23)+
+  ggtitle(paste("Residual VS fitted Plot")) +
+  xlab("Residuals") +
+  ylab("Fitted values")+
+  theme_light()
+
+
+```
+
+```{r}
+
+# Compute Cook's distance
+cooks_dist <- cooks.distance(stepwise_model)
+
+# Plot Cook's Distance
+plot(cooks_dist, main = "Cook's Distance", type = "h", col = "red")
+abline(h = 4/(nrow(data)), col = "blue", lty = 8)  # Threshold line
+
+#leverage test
+hatvalues <- hatvalues(stepwise_model)
+plot(hatvalues, main = "Leverage Values", type = "h", col = "blue")
+abline(h = 2*mean(hatvalues), col = "red", lty = 2)
+
+
+
+```
+
+#question 21
+
+```{r}
+set.seed(060)
+
+library(dplyr)
+
+# Sample 5 rows from the mtcars dataset
+data1 <- sample_n(data, 50)
+
+
+data1 <- data[,c(-19,-20,-21,-22)]
+
+
+```
+
+#Question-10
+```{r}
+#calculating BMI
+data1$BMI <- round(data1$Weight / (data1$Height)^2,1)
+
+# Categorize BMI
+data1$BMI_cat <- cut(data1$BMI, 
+                     breaks = c(-Inf, 18.5, 24.9, 29.9, Inf), 
+                     labels = c("Underweight", "Normal", "Overweight", "Obesity"))
+
+table(data1$BMI_cat)
+
+data1$BMI_cat[data1$BMI < 18.5] <- "Underweight"
+data1$BMI_cat[18.5 <= data1$BMI & data1$BMI <= 24.9] <- "Normal"
+data1$BMI_cat[25 <= data1$BMI & data1$BMI <= 29.9] <- "Overweight"
+data1$BMI_cat[data1$BMI >= 30] <- "Obesity"
+
+
+```
+
+#Question-11
+```{r}
+#data accroding to the question
+filtered_data <- subset(data1, Age > 30 & SMOKE == "no" & FAF == "2 or 4days" & CH2O > 1, select = c(Age,Height, Weight,SMOKE, FAF, CH2O))
+
+
+
+#BMI calculation
+
+filtered_data$BMI <- round(filtered_data$Weight/filtered_data$Height^2,1)
+
+tail(filtered_data, 10)
+```
+
+#Question-12
+```{r}
+#Subsettign data according to the comndition in the question
+obesity_sub <- subset(data1, Height > 1.8 & FAVC == "yes", select = c(Age,Height, Weight, FAVC,BMI))
+
+#average BMI
+mean <- round(mean(obesity_sub$BMI, na.rm = T),3)
+
+
+#Standard deviation of BMI
+sd <- round(sd(obesity_sub$BMI),3)
+
+#Comment
+sprintf("The Average BMI for people with height more than 1.8 and with High caloric food consumption is %.2f with a standard deviation of %.2f",mean,sd)
+
+
+```
+#Question-13
+```{r}
+#Correlation between age,height,weight
+a <- round(cor(data1$Age,data1$Weight),3)
+b <- round(cor(data1$Age,data1$Height),3)
+c <- round(cor(data1$Weight,data1$Height),3)
+
+paste(a,b,c)
+
+sprintf("Comparing to question 8 scatter plot it is seen that Age and Weight has slightly upward trend and the pearson corr coeff is = %.3f and Age and Weight has slightly downward trend with pearson corr coeff = %.3f which is close to zero and lastly Weight and Height has quite strong upward trend with corr coeff = %.3f which indicates moderate correlation", a,b,c)
+#Question-14
+```{r}
+#Corr between age and bmi
+
+r <- round(cor(data1$Age,data1$BMI),3)
+
+sprintf("This shows that Age and BMI has weak posetive correlaion with pearson coefficient of correlation : %.3f",r)
+
+#correlation test of Age and BMI
+#Null H0 : Roh(Age,BMI) = 0
+#Alternative Ha : Roh(Age,BMI) != 0
+
+corr.test(data1$Age,data1$BMI, method = "spearman")
+
+#print(corr.test(data$Age,data$BMI),short = F)
+
+
+print("Null H0 : Roh(Age,BMI) = 0")
+print("Alternative Ha : Roh(Age,BMI) != 0")
+
+print('As the p value < 0.05 we may reject null hypothesis at 5% level of significance and conclude that the correlation between Age and BMI significantly differ from Zero at 5% level of significance.')
+
+
+cor(data1[sapply(data1, is.numeric)], use = "complete.obs")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
