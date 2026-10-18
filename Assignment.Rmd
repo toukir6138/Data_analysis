@@ -11,7 +11,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Question-1
 ```{r}
 #setwd("E:\\study\\3_2\\Computign_2\\Assigenment")
 
@@ -68,7 +67,6 @@ table(data$TUE)
 str(data)
 ```
 
-#Question-2
 ```{r}
 #Gender
 tab_gender <- table(data$Gender)
@@ -120,7 +118,6 @@ analyze_categorical(data)
 
 ```
 
-#Question-3 Pending
 ```{r}
 library(ggplot2)
 #Gender
@@ -186,7 +183,6 @@ calc_bar
 
 ```
 
-#Question-4
 ```{r}
 #Analyzing Numerical variables summary statistics using a library
 #install.packages("psych")
@@ -201,7 +197,6 @@ num_analysis
 
 ```
 
-#Question-5
 ```{r}
 library(ggplot2)
 
@@ -225,7 +220,6 @@ ggplot(data, aes(x = Age)) +
 
 ```
 
-#Question-6
 ```{r informal test of normality}
 #Collecting numerical variables in a dataframe
 num_vars <- names(data)[sapply(data, is.numeric)]
@@ -322,7 +316,6 @@ box_plot(data)
 
 ```
 
-#Question-7 Pending
 ```{r}
 # Libraries
 library(ggplot2)
@@ -366,7 +359,7 @@ for (cat_var in categorical_variables) {
 
 
 ```
-#Question-8
+
 ```{r}
 
 library(ggplot2)
@@ -402,7 +395,7 @@ pairs(data[, c("Age", "Height", "Weight")],
              col = c("red","blue"))
 
 ```
-#Question-9
+
 ```{r}
 #Using ifelse() function to recode MTRANS
 
@@ -419,7 +412,7 @@ table(data$FCVC_factor)
 
 ```
 
-#Question-10
+
 ```{r}
 #calculating BMI
 data$BMI <- round(data$Weight / (data$Height)^2,1)
@@ -439,7 +432,7 @@ data$BMI_cat[data$BMI >= 30] <- "Obesity"
 
 ```
 
-#Question-11
+
 ```{r}
 #data accroding to the question
 filtered_data <- subset(data, Age > 30 & SMOKE == "no" & FAF == "2 or 4days" & CH2O > 1, select = c(Age,Height, Weight,SMOKE, FAF, CH2O))
@@ -452,7 +445,7 @@ filtered_data$BMI <- round(filtered_data$Weight/filtered_data$Height^2,1)
 
 tail(filtered_data, 10)
 ```
-#Question-12
+
 ```{r}
 #Subsettign data according to the comndition in the question
 obesity_sub <- subset(data, Height > 1.8 & FAVC == "yes", select = c(Age,Height, Weight, FAVC,BMI))
@@ -472,7 +465,7 @@ sprintf("The Average BMI for people with height more than 1.8 and with High calo
 
 
 
-#Question-13
+
 ```{r}
 #Correlation between age,height,weight
 a <- round(cor(data$Age,data$Weight),3)
@@ -485,7 +478,7 @@ sprintf("Comparing to question 8 scatter plot it is seen that Age and Weight has
 
 ```
 
-#Question-14
+
 ```{r}
 #Corr between age and bmi
 
@@ -510,7 +503,7 @@ print('As the p value < 0.05 we may reject null hypothesis at 5% level of signif
 
 cor(data[sapply(data, is.numeric)], use = "complete.obs")
 ```
-#Question-15
+
 ```{r}
 require(BSDA)
 
@@ -552,7 +545,7 @@ print("As the p value < 0.05 we may reject null hypothesis at 5% level of signif
 ```
 
 
-#Question-16
+
 ```{r}
 require(BSDA)
 
@@ -581,7 +574,7 @@ t.test(BMI ~ family_history_with_overweight, data , var.equal = F, alternative =
 
 ```
 
-#Question-17
+
 ```{r}
 #Anova and multiple comparison of Age
 summary(aov(Age ~ CAEC, data))
@@ -617,7 +610,7 @@ TukeyHSD(aov(Weight ~ MTRANS, data))
 
 
 ```
-#Question-18
+
 ```{r}
 #Contengency table
 bmi_gender_tab <- table(data$Gender, data$BMI_cat)
@@ -695,7 +688,7 @@ bmi_analysis(data, "MTRANS", "BMI_cat")
 
 ```
 
-#Question-19
+
 ```{r}
 require(dplyr)
 
@@ -730,7 +723,7 @@ predicted_weight
 sprintf("The predicted average weight for given data in question is %f KG",predicted_weight)
 
 ```
-#Question-20
+
 ```{r}
 #install.packages("MASS")
 require(MASS)
@@ -856,8 +849,6 @@ abline(h = 2*mean(hatvalues), col = "red", lty = 2)
 
 ```
 
-#question 21
-
 ```{r}
 set.seed(060)
 
@@ -872,7 +863,6 @@ data1 <- data[,c(-19,-20,-21,-22)]
 
 ```
 
-#Question-10
 ```{r}
 #calculating BMI
 data1$BMI <- round(data1$Weight / (data1$Height)^2,1)
@@ -892,7 +882,6 @@ data1$BMI_cat[data1$BMI >= 30] <- "Obesity"
 
 ```
 
-#Question-11
 ```{r}
 #data accroding to the question
 filtered_data <- subset(data1, Age > 30 & SMOKE == "no" & FAF == "2 or 4days" & CH2O > 1, select = c(Age,Height, Weight,SMOKE, FAF, CH2O))
@@ -906,7 +895,6 @@ filtered_data$BMI <- round(filtered_data$Weight/filtered_data$Height^2,1)
 tail(filtered_data, 10)
 ```
 
-#Question-12
 ```{r}
 #Subsettign data according to the comndition in the question
 obesity_sub <- subset(data1, Height > 1.8 & FAVC == "yes", select = c(Age,Height, Weight, FAVC,BMI))
@@ -923,7 +911,7 @@ sprintf("The Average BMI for people with height more than 1.8 and with High calo
 
 
 ```
-#Question-13
+
 ```{r}
 #Correlation between age,height,weight
 a <- round(cor(data1$Age,data1$Weight),3)
